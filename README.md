@@ -1,4 +1,4 @@
-# Lab 11: gRPC Ride Dispatch System
+# gRPC Ride Dispatch System
 
 > Status: In Progress
 > Started: 2026-08-09 · Published: —
