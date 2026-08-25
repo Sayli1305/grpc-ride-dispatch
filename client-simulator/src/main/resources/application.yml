@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: client-simulator
+
+grpc:
+  client:
+    dispatch-server:
+      address: 'static://${DISPATCH_SERVER_HOST:localhost}:${DISPATCH_SERVER_PORT:9090}'
+      negotiation-type: plaintext   # demo only - a real deployment terminates TLS here

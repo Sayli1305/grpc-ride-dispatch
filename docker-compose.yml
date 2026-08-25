@@ -1,0 +1,33 @@
+# Optional production-style packaging. The quick way to run this lab is
+# two local `mvn spring-boot:run` processes (see README) - no Docker
+# needed at all, since there's no external infra (no DB, no broker).
+# This compose file exists for parity with how the other labs package
+# things, and as a more realistic "how would this actually ship" example.
+
+version: "3.8"
+
+services:
+  dispatch-server:
+    build:
+      context: .
+      dockerfile: dispatch-server/Dockerfile
+    container_name: ride-dispatch-server
+    ports:
+      - "8400:8400"   # HTTP - actuator/health/metrics
+      - "9090:9090"   # gRPC
+    networks: [ride-net]
+
+  client-simulator:
+    build:
+      context: .
+      dockerfile: client-simulator/Dockerfile
+    container_name: ride-client-simulator
+    depends_on: [dispatch-server]
+    environment:
+      DISPATCH_SERVER_HOST: dispatch-server
+      DISPATCH_SERVER_PORT: "9090"
+    networks: [ride-net]
+
+networks:
+  ride-net:
+    driver: bridge

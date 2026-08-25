@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: dispatch-server
+
+server:
+  port: 8400   # HTTP - actuator/health/metrics only, all real traffic is gRPC
+
+grpc:
+  server:
+    port: 9090
+    reflection-service-enabled: true   # lets grpcurl introspect the service - see scripts/grpcurl-examples.sh
+    health-service-enabled: true        # standard grpc.health.v1.Health, for k8s-style liveness/readiness probes
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus

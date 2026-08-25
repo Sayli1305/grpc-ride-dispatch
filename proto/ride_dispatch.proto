@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package dev.buildwithsayli.ridedispatch;
+
+option java_package = "dev.buildwithsayli.ridedispatch.grpc";
+option java_multiple_files = true;
+option java_outer_classname = "RideDispatchProto";
+
+// A ride-hailing dispatch service, deliberately shaped to exercise all
+// four gRPC call types against one coherent domain instead of four
+// unrelated toy examples:
+//   - RequestRide: unary            (rider asks for a ride, gets matched)
+//   - WatchRideStatus: server-streaming (rider watches the ride progress)
+//   - StreamDriverLocation: client-streaming (driver streams GPS pings)
+//   - Chat: bidirectional-streaming (rider/driver message each other)
+service RideDispatchService {
+  rpc RequestRide(RideRequest) returns (RideAssignment);
+
+  rpc WatchRideStatus(WatchRideStatusRequest) returns (stream RideStatusUpdate);
+
+  rpc StreamDriverLocation(stream DriverLocationPing) returns (DriverLocationSummary);
+
+  rpc Chat(stream ChatMessage) returns (stream ChatMessage);
+}
+
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+}
+
+message RideRequest {
+  string rider_id = 1;
+  Location pickup = 2;
+  Location dropoff = 3;
+}
+
+message RideAssignment {
+  string ride_id = 1;
+  string driver_id = 2;
+  Location driver_current_location = 3;
+  int32 eta_seconds = 4;
+}
+
+message WatchRideStatusRequest {
+  string ride_id = 1;
+}
+
+enum RideStatus {
+  RIDE_STATUS_UNSPECIFIED = 0;
+  MATCHED = 1;
+  DRIVER_EN_ROUTE = 2;
+  DRIVER_ARRIVED = 3;
+  IN_PROGRESS = 4;
+  COMPLETED = 5;
+  CANCELLED = 6;
+}
+
+message RideStatusUpdate {
+  string ride_id = 1;
+  RideStatus status = 2;
+  Location current_location = 3;
+  int64 timestamp_epoch_ms = 4;
+}
+
+message DriverLocationPing {
+  string driver_id = 1;
+  Location location = 2;
+  int64 timestamp_epoch_ms = 3;
+}
+
+message DriverLocationSummary {
+  string driver_id = 1;
+  int32 pings_received = 2;
+  double total_distance_km = 3;
+  int64 duration_ms = 4;
+}
+
+message ChatMessage {
+  string ride_id = 1;
+  string sender_id = 2;
+  string text = 3;
+  int64 timestamp_epoch_ms = 4;
+}
